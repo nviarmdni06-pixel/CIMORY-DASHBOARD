@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CMRY Smart Financial Dashboard — Cimory</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#EEF1F8; --panel:#FFFFFF; --ink:#0F1B3D; --muted:#5B6784; --line:#D9E0EE;
+  --navy:#14285E; --navy2:#1F3C88; --navy-soft:#E1E9F8; --red:#D62828; --red-soft:#FDE7E7; --slate:#8FA2C7; --green:#1E9E6A; --gold:#E0A100;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); box-sizing:border-box;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--bg:#0B1226;--panel:#141F3C;--ink:#E8EDF8;--muted:#9FADC9;--line:#26365F;--navy:#7FA6F5;--navy2:#5C8BEB;--navy-soft:#1A2D55;--red:#FF6B6B;--red-soft:#3A1E2A;--slate:#6C80A8}
+}
+:root[data-theme="dark"]{--bg:#0B1226;--panel:#141F3C;--ink:#E8EDF8;--muted:#9FADC9;--line:#26365F;--navy:#7FA6F5;--navy2:#5C8BEB;--navy-soft:#1A2D55;--red:#FF6B6B;--red-soft:#3A1E2A;--slate:#6C80A8}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.topbar{height:8px;background:linear-gradient(90deg,#D62828 0 50%,#14285E 50% 100%)}
+.hero{background:linear-gradient(120deg,#0E1D4A,#14285E 55%,#2A1A4A);color:#fff;padding:22px 24px 20px}
+.hero .in{max-width:1320px;margin:0 auto;display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between}
+.brand{display:flex;gap:16px;align-items:center}
+.logo{width:68px;height:68px;border-radius:16px;background:linear-gradient(135deg,#D62828,#8E1111);display:grid;place-items:center;font-weight:800;font-size:1.05rem;letter-spacing:.04em;box-shadow:0 8px 20px rgba(0,0,0,.35),inset 0 2px 0 rgba(255,255,255,.25)}
+h1{font-size:clamp(1.35rem,2.6vw,2rem);line-height:1.15;margin:0;font-weight:800;letter-spacing:-.01em}
+h1 span{color:#FF7B7B}
+.sub{margin:6px 0 0;color:#C6D1EE;font-size:.86rem}
+.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.seg{display:inline-flex;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:4px}
+.seg button{font:inherit;font-weight:700;border:0;background:transparent;color:#DCE5FA;padding:8px 18px;border-radius:9px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--red);color:#fff}
+.theme{font:inherit;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;border-radius:12px;padding:9px 12px;cursor:pointer}
+.seg button:focus-visible,.theme:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.wrap{max-width:1320px;margin:0 auto;padding:22px 24px 48px}
+.note{background:var(--red-soft);border-left:4px solid var(--red);border-radius:10px;padding:10px 14px;font-size:.88rem;margin-bottom:18px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:16px}
+.kpi{background:var(--panel);border-radius:16px;padding:16px;border:1px solid var(--line);border-top:5px solid var(--navy2);box-shadow:0 6px 16px rgba(20,40,94,.08);transition:transform .2s}
+.kpi:hover{transform:translateY(-3px)}
+.kpi.r{border-top-color:var(--red)}
+.tag{display:inline-block;font-size:.68rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:var(--navy-soft);color:var(--navy)}
+.kpi.r .tag{background:var(--red-soft);color:var(--red)}
+.kpi .l{font-size:.84rem;color:var(--muted);font-weight:600;margin-top:8px}
+.kpi .v{font-size:1.75rem;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums;margin-top:2px}
+.kpi .d{font-size:.82rem;font-weight:700;margin-top:2px}
+.kpi .p{font-size:.76rem;color:var(--muted);margin-top:2px}
+.up{color:var(--green)} .down{color:var(--red)} .flat{color:var(--muted)}
+.mini{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.m{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.m small{color:var(--muted);font-weight:600;font-size:.74rem;display:block}
+.m b{font-size:1.02rem;color:var(--navy);font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 6px 16px rgba(20,40,94,.05)}
+.panel h2{font-size:1rem;margin:0 0 2px;color:var(--navy);font-weight:800}
+.panel .cap{font-size:.8rem;color:var(--muted);margin:0 0 12px}
+.c4{grid-column:span 4}.c5{grid-column:span 5}.c6{grid-column:span 6}.c7{grid-column:span 7}.c12{grid-column:span 12}
+.chart{position:relative;height:260px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:.87rem}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--muted);font-weight:700;font-size:.78rem}
+td.sel,th.sel{background:var(--navy-soft);font-weight:800;color:var(--navy)}
+.risk{border-color:var(--red)}
+.flags{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.flag{border-radius:12px;background:var(--red-soft);padding:14px;border-top:3px solid var(--red)}
+.flag b{display:block;margin-bottom:4px;font-size:.92rem}
+.flag p{margin:0 0 6px;font-size:.84rem}
+.flag .act{color:var(--navy);font-weight:700}
+ol.ins{margin:0;padding-left:20px}
+ol.ins li{margin-bottom:8px;font-size:.88rem}
+ol.ins li.warn::marker{color:var(--red);font-weight:800}
+.answer{font-size:1.05rem;font-weight:600;color:var(--navy);line-height:1.5;margin:0}
+footer{margin-top:22px;color:var(--muted);font-size:.78rem}
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.mini{grid-template-columns:repeat(3,minmax(0,1fr))}.c4,.c5,.c6,.c7{grid-column:span 12}.flags{grid-template-columns:1fr}}
+@media (max-width:560px){.kpi .v{font-size:1.4rem}.mini{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="topbar"></div>
+<div class="hero"><div class="in">
+  <div class="brand">
+    <div class="logo" aria-hidden="true">CMRY</div>
+    <div>
+      <h1>CMRY <span>Smart</span> Financial Dashboard</h1>
+      <p class="sub">PT Cisarua Mountain Dairy Tbk (Cimory) · Laporan keuangan konsolidasian audited FY2024–FY2025 · Rp triliun · Digital Bisnis Accounting</p>
+    </div>
+  </div>
+  <div class="controls">
+    <div class="seg" role="group" aria-label="Pilih tahun">
+      <button data-y="2024" aria-pressed="false">2024</button>
+      <button data-y="2025" aria-pressed="true">2025</button>
+    </div>
+    <button class="theme" id="theme" aria-label="Ganti tema terang/gelap">Tema</button>
+  </div>
+</div></div>
+
+<div class="wrap">
+<div class="note" id="note"><b>Sorotan 2025:</b> Penjualan +18,8% dan laba bersih +33,8% mendorong ROE ke 29,96%, tetapi Current Ratio turun 3,16x → 2,23x karena dividen tunai Rp1,98 T (≈98% laba) dan persediaan naik 32,0%.</div>
+
+<section class="kpis" id="kpis" aria-label="Delapan KPI utama"></section>
+<section class="mini" id="mini" aria-label="Angka kunci"></section>
+
+<div class="grid">
+  <div class="panel c7">
+    <h2>Penjualan, laba kotor &amp; laba bersih</h2>
+    <p class="cap">Penjualan tumbuh 18,8%; laba bersih tumbuh lebih cepat (33,8%) karena beban penjualan menyusut dari 24,4% ke 22,1% penjualan.</p>
+    <div class="chart"><canvas id="cRev" aria-label="Grafik penjualan dan laba"></canvas></div>
+  </div>
+  <div class="panel c5">
+    <h2>Profitabilitas (GPM, NPM, ROA, ROE)</h2>
+    <p class="cap">Margin kotor stabil ≈45%; margin bersih, ROA, dan ROE semuanya naik.</p>
+    <div class="chart"><canvas id="cProf" aria-label="Grafik profitabilitas"></canvas></div>
+  </div>
+
+  <div class="panel c6">
+    <h2>Arus kas per aktivitas</h2>
+    <p class="cap">Arus kas pendanaan melonjak negatif akibat dividen Rp1,98 T (2024: Rp0,71 T). FCF sederhana = OCF − belanja aset tetap.</p>
+    <div class="chart"><canvas id="cCash" aria-label="Grafik arus kas"></canvas></div>
+  </div>
+  <div class="panel c6">
+    <h2>Struktur pendanaan</h2>
+    <p class="cap">Liabilitas hanya ≈22% dari total aset; ekuitas dominan (DER 0,29x).</p>
+    <div class="chart"><canvas id="cCap" aria-label="Grafik liabilitas dan ekuitas"></canvas></div>
+  </div>
+
+  <div class="panel c7 risk">
+    <h2>Sinyal risiko: pertumbuhan 2025 vs 2024 (%)</h2>
+    <p class="cap">Persediaan (+32,0%) tumbuh lebih cepat dari penjualan (+18,8%); arus kas operasi (+10,3%) tertinggal dari laba (+33,8%).</p>
+    <div class="chart"><canvas id="cGrow" aria-label="Grafik pertumbuhan"></canvas></div>
+  </div>
+  <div class="panel c5">
+    <h2>Struktur biaya <span id="costYear">2025</span></h2>
+    <p class="cap" id="costCap"></p>
+    <div class="chart"><canvas id="cCost" aria-label="Grafik struktur biaya"></canvas></div>
+  </div>
+
+  <div class="panel c7">
+    <h2>8 KPI: perbandingan dua tahun</h2>
+    <p class="cap">Kolom tahun terpilih disorot. Δ = perubahan FY2025 terhadap FY2024 (pp = poin persentase).</p>
+    <div class="scroll"><table id="ratios"></table></div>
+  </div>
+  <div class="panel c5">
+    <h2>Financial insight</h2>
+    <p class="cap">Setiap angka dapat ditelusuri ke Excel (sheet RK &amp; LK).</p>
+    <ol class="ins">
+      <li>Net Profit Margin naik 16,83% → 18,96% dan ROE 22,50% → 29,96%.</li>
+      <li>TATO membaik 1,10x → 1,23x: aset lebih produktif menghasilkan penjualan.</li>
+      <li>DER naik 0,21x → 0,29x tetapi tetap sangat rendah (utang kecil).</li>
+      <li class="warn">Current Ratio 3,16x → 2,23x; Quick Ratio 2,49x → 1,57x (kas turun 26,0%).</li>
+      <li class="warn">Persediaan +32,0% vs penjualan +18,8%: risiko stok menumpuk.</li>
+      <li class="warn">OCF/Laba bersih turun 1,14x → 0,94x: kualitas laba perlu dipantau.</li>
+    </ol>
+  </div>
+
+  <div class="panel c12">
+    <h2>Red flags &amp; tindakan Accounting 4.0</h2>
+    <p class="cap">Dari angka → risiko → teknologi yang relevan.</p>
+    <div class="flags">
+      <div class="flag"><b>Likuiditas menyusut</b><p>Current Ratio turun 0,93x; kas &amp; setara kas Rp1,28 T → Rp0,95 T setelah dividen Rp1,98 T.</p><p class="act">AI cash forecasting, dashboard kas real-time</p></div>
+      <div class="flag"><b>Persediaan menumpuk</b><p>Persediaan Rp0,93 T → Rp1,23 T (+32,0%), lebih cepat dari penjualan (+18,8%).</p><p class="act">ERP + demand forecasting, monitoring stok produk segar</p></div>
+      <div class="flag"><b>Laba naik, kas operasi tertinggal</b><p>Laba +33,8% vs OCF +10,3%; piutang usaha +15,5%, belanja aset tetap +53,7%.</p><p class="act">Anomaly detection, rekonsiliasi laba-ke-kas otomatis</p></div>
+    </div>
+  </div>
+
+  <div class="panel c12">
+    <h2>Apa yang diketahui manajemen dalam 30 detik?</h2>
+    <p class="answer">Kinerja Cimory menguat tajam di 2025: penjualan, margin bersih, ROA, dan ROE naik dengan utang tetap rendah. Namun likuiditas menurun karena dividen besar, persediaan tumbuh lebih cepat dari penjualan, dan arus kas operasi tertinggal dari laba. Prioritas: jaga kas, kendalikan stok, dan pantau kualitas laba.</p>
+  </div>
+</div>
+
+<footer>Sumber: Laporan Keuangan Tahunan 2025 PT Cisarua Mountain Dairy Tbk (CMRY), Inline XBRL IDX, audited KAP Purwanto Susanti dan Surja (opini wajar tanpa modifikasian), diolah kelompok. Angka dihitung dari workbook CMRY_Laporan_Keuangan_KPI.xlsx; rasio memakai saldo akhir periode. Seluruh angka adalah data historis. Dashboard dibuat dengan bantuan AI (Claude) dan telah diverifikasi ke laporan asli.</footer>
+</div>
+
+<script>
+const Y=['2024','2025'];
+// DATA MENTAH (Rp juta) — sumber: laporan keuangan konsolidasian audit, IDX (CMRY)
+const RAW={
+ 2024:{rev:9025658,cogs:4942788,gp:4082870,net:1519425,ca:4394679,inv:932189,nca:3796892,ta:8191571,cl:1390297,tl:1439423,te:6752148,cash:1280356,sell:2202150,ga:208313,tax:385367,ocf:1728059,icf:-1929255,fin:-715844,capex:337210,div:714160},
+ 2025:{rev:10724003,cogs:5869893,gp:4854110,net:2032971,ca:4192417,inv:1230968,nca:4548733,ta:8741150,cl:1882266,tl:1956403,te:6784747,cash:947920,sell:2365697,ga:200758,tax:527521,ocf:1906416,icf:-251727,fin:-1987125,capex:518179,div:1983792}};
+const pair=k=>[RAW[2024][k]/1e6,RAW[2025][k]/1e6];
+const D={};['rev','gp','net','ocf','icf','fin','capex','cash','ta','tl','te','inv','div'].forEach(k=>D[k]=pair(k));
+D.cost={'2024':['cogs','sell','ga','tax'].map(k=>RAW[2024][k]/1e6),'2025':['cogs','sell','ga','tax'].map(k=>RAW[2025][k]/1e6)};
+D.fcf=[D.ocf[0]-D.capex[0],D.ocf[1]-D.capex[1]];
+const costLabels=['Beban pokok penjualan','Beban penjualan','Beban umum & administrasi','Beban pajak penghasilan'];
+// KPI: [name, group, [2024,2025], unit, decimals, higherBetter, formula]
+const div=(x,y)=>y?x/y:NaN;
+const calc=(r)=>[div(r.ca,r.cl),div(r.ca-r.inv,r.cl),div(r.gp,r.rev)*100,div(r.net,r.rev)*100,div(r.net,r.ta)*100,div(r.net,r.te)*100,div(r.tl,r.te),div(r.rev,r.ta)];
+const V=[calc(RAW[2024]),calc(RAW[2025])];
+const meta=[['Current Ratio','Likuiditas','x',true,'Aset lancar ÷ Liabilitas jk. pendek'],['Quick Ratio','Likuiditas','x',true,'(Aset lancar − Persediaan) ÷ Liab. jk. pendek'],['Gross Profit Margin','Profitabilitas','%',true,'Laba bruto ÷ Penjualan'],['Net Profit Margin','Profitabilitas','%',true,'Laba bersih ÷ Penjualan'],['Return on Assets (ROA)','Profitabilitas','%',true,'Laba bersih ÷ Total aset'],['Return on Equity (ROE)','Profitabilitas','%',true,'Laba bersih ÷ Total ekuitas'],['Debt to Equity Ratio (DER)','Solvabilitas','x',false,'Total liabilitas ÷ Total ekuitas'],['Total Asset Turnover (TATO)','Aktivitas','x',true,'Penjualan ÷ Total aset']];
+const K=meta.map(([n,g,u,hb,f],i)=>[n,g,[V[0][i],V[1][i]],u,2,hb,f]);
+const fmt=(v,d=2)=>{if(!isFinite(v))return 'n.a.';const s=Math.abs(v).toFixed(d).replace('.',',');return v<0?`(${s})`:s};
+const rp=v=>v<0?`(Rp${Math.abs(v).toFixed(2).replace('.',',')} T)`:`Rp${v.toFixed(2).replace('.',',')} T`;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let year='2025', charts={};
+
+function kpis(){
+  const i=Y.indexOf(year);
+  document.getElementById('kpis').innerHTML=K.map(([n,g,a,u,d,hb],idx)=>{
+    const v=a[i]; let dd='Tahun dasar',c='flat';
+    if(i>0){const diff=v-a[i-1];const better=hb?diff>=0:diff<=0;
+      const txt=u==='%'?`${diff>=0?'+':'−'}${Math.abs(diff).toFixed(2).replace('.',',')} pp`:`${diff>=0?'+':'−'}${Math.abs(diff).toFixed(2).replace('.',',')}x`;
+      dd=`${diff>=0?'▲':'▼'} ${txt} vs 2024`;c=better?'up':'down'}
+    return `<div class="kpi ${idx%2?'r':''}"><span class="tag">${g}</span><div class="l">${n}</div><div class="v">${fmt(v,d)}${u}</div><div class="d ${c}">${dd}</div><div class="p">${K[idx][6]}</div></div>`}).join('');
+  const m=[['Penjualan',D.rev],['Laba kotor',D.gp],['Laba bersih',D.net],['Total aset',D.ta],['Total ekuitas',D.te],['Kas & setara kas',D.cash]];
+  document.getElementById('mini').innerHTML=m.map(([l,a])=>`<div class="m"><small>${l}</small><b>${rp(a[i])}</b></div>`).join('');
+}
+function table(){
+  const h=`<tr><th>KPI</th>${Y.map(y=>`<th class="${y===year?'sel':''}">FY${y}</th>`).join('')}<th>Δ</th></tr>`;
+  const b=K.map(([n,g,a,u,d])=>{const diff=a[1]-a[0];const t=u==='%'?`${diff>=0?'+':'−'}${Math.abs(diff).toFixed(2).replace('.',',')} pp`:`${diff>=0?'+':'−'}${Math.abs(diff).toFixed(2).replace('.',',')}x`;
+   return `<tr><td>${n}</td>${a.map((x,j)=>`<td class="${Y[j]===year?'sel':''}">${fmt(x,d)}${u}</td>`).join('')}<td>${t}</td></tr>`}).join('');
+  document.getElementById('ratios').innerHTML=h+b;
+}
+function base(){
+  const g=css('--line'),m=css('--muted');
+  return {responsive:true,maintainAspectRatio:false,animation:matchMedia('(prefers-reduced-motion: reduce)').matches?false:{duration:500},
+    plugins:{legend:{position:'bottom',labels:{color:m,boxWidth:12,font:{family:'Plus Jakarta Sans'}}},tooltip:{callbacks:{}}},
+    scales:{x:{grid:{display:false},ticks:{color:m}},y:{grid:{color:g},ticks:{color:m}}}};
+}
+function draw(){
+  Object.values(charts).forEach(c=>c.destroy()); charts={};
+  const N=css('--navy2'),R=css('--red'),S=css('--slate'),G='#1E9E6A';
+  const hi=col=>Y.map(y=>y===year?col:col+'66');
+  let o=base(); o.plugins.tooltip.callbacks.label=c=>`${c.dataset.label}: Rp${c.parsed.y.toFixed(2).replace('.',',')} T`;
+  charts.rev=new Chart(cRev,{type:'bar',data:{labels:Y,datasets:[{label:'Penjualan',data:D.rev,backgroundColor:hi(N),borderRadius:6},{label:'Laba kotor',data:D.gp,backgroundColor:hi(S),borderRadius:6},{label:'Laba bersih',data:D.net,backgroundColor:hi(R),borderRadius:6}]},options:o});
+  o=base(); o.scales.y.ticks.callback=v=>v+'%'; o.plugins.tooltip.callbacks.label=c=>`FY${c.dataset.label}: ${c.parsed.y.toFixed(2).replace('.',',')}%`;
+  const pk=[2,3,4,5];
+  charts.prof=new Chart(cProf,{type:'bar',data:{labels:['GPM','NPM','ROA','ROE'],datasets:Y.map((y,j)=>({label:y,data:pk.map(i=>K[i][2][j]),backgroundColor:j?(y===year?R:R+'66'):(y===year?N:N+'66'),borderRadius:5}))},options:o});
+  o=base(); o.plugins.tooltip.callbacks.label=c=>`${c.dataset.label}: ${fmt(c.parsed.y)} T`;
+  charts.cash=new Chart(cCash,{type:'bar',data:{labels:Y,datasets:[{label:'Operasi',data:D.ocf,backgroundColor:hi(N),borderRadius:4},{label:'Investasi',data:D.icf,backgroundColor:hi(S),borderRadius:4},{label:'Pendanaan',data:D.fin,backgroundColor:hi(R),borderRadius:4},{label:'FCF sederhana',data:D.fcf,backgroundColor:hi(G),borderRadius:4}]},options:o});
+  o=base(); o.scales.x.stacked=true; o.scales.y.stacked=true; o.plugins.tooltip.callbacks.label=c=>`${c.dataset.label}: Rp${c.parsed.y.toFixed(2).replace('.',',')} T`;
+  charts.cap=new Chart(cCap,{type:'bar',data:{labels:Y,datasets:[{label:'Total liabilitas',data:D.tl,backgroundColor:hi(R),borderRadius:4},{label:'Total ekuitas',data:D.te,backgroundColor:hi(N),borderRadius:4}]},options:o});
+  const gl=['Penjualan','Laba kotor','Laba bersih','Persediaan','Arus kas operasi','Total aset'];
+  const gv=[D.rev,D.gp,D.net,D.inv,D.ocf,D.ta].map(a=>(a[1]/a[0]-1)*100);
+  o=base(); o.indexAxis='y'; o.plugins.legend.display=false; o.scales.x.ticks.callback=v=>v+'%'; o.scales.y.grid.display=false; o.scales.x.grid={color:css('--line')};
+  o.plugins.tooltip.callbacks.label=c=>`Pertumbuhan: +${c.parsed.x.toFixed(1).replace('.',',')}%`;
+  charts.grow=new Chart(cGrow,{type:'bar',data:{labels:gl,datasets:[{data:gv,backgroundColor:gl.map(l=>['Persediaan','Arus kas operasi'].includes(l)?R:N),borderRadius:5}]},options:o});
+  const cost=D.cost[year],tot=cost.reduce((a,b)=>a+b,0),rev=D.rev[Y.indexOf(year)];
+  costYear.textContent=year; costCap.textContent=`Total biaya Rp${tot.toFixed(2).replace('.',',')} T = ${(tot/rev*100).toFixed(0)}% dari penjualan; HPP dominan.`;
+  charts.cost=new Chart(cCost,{type:'doughnut',data:{labels:costLabels,datasets:[{data:cost,backgroundColor:[N,R,S,'#E0A100'],borderColor:css('--panel'),borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{color:css('--muted'),boxWidth:12,font:{family:'Plus Jakarta Sans',size:11}}},tooltip:{callbacks:{label:c=>`${c.label}: Rp${c.parsed.toFixed(2).replace('.',',')} T (${(c.parsed/tot*100).toFixed(0)}%)`}}}}});
+}
+function render(){
+  document.querySelectorAll('.seg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.y===year));
+  document.getElementById('note').style.display=year==='2025'?'block':'none';
+  kpis();table(); if(window.Chart) draw();
+}
+document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>{year=b.dataset.y;render()}));
+document.getElementById('theme').addEventListener('click',()=>{
+  const r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme=dark?'light':'dark';render();});
+if(window.Chart){Chart.defaults.font.family="'Plus Jakarta Sans', system-ui, sans-serif";}
+render();
+</script>
+</body>
+</html>
